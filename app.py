@@ -12,7 +12,6 @@ st.set_page_config(
     layout="centered"
 )
 
-
 if "extracted_text" not in st.session_state:
     st.session_state.extracted_text = ""
 
