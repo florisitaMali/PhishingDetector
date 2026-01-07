@@ -16,6 +16,15 @@ st.set_page_config(
 )
 
 # -----------------------------
+# SESSION STATE INIT
+# -----------------------------
+if "extracted_text" not in st.session_state:
+    st.session_state.extracted_text = ""
+
+if "last_image_name" not in st.session_state:
+    st.session_state.last_image_name = None
+
+# -----------------------------
 # CACHED LOADING FUNCTIONS
 # -----------------------------
 @st.cache_resource
@@ -58,7 +67,7 @@ def cached_extract_website_features(url):
 from agent.decision_logic import agent_decision
 
 # -----------------------------
-# ✅ ANIMATED GIF VISUAL (FIXED)
+# GIF VISUAL
 # -----------------------------
 def show_agent_visual(action):
     action = action.upper().strip()
@@ -84,20 +93,18 @@ def show_agent_visual(action):
         <p style="font-weight:bold; font-size:16px;">{caption}</p>
     </div>
     """
-
     components.html(html, height=320)
-
 
 # -----------------------------
 # UI HEADER
 # -----------------------------
-st.title(" Multi-Modal Phishing Detection Agent")
+st.title("Multi-Modal Phishing Detection Agent")
 
 st.markdown("""
-This intelligent agent detects phishing in **emails**, **websites**, and **email/website screenshots**.
-- **ALLOW ✅** – low-risk
-- **WARN ⚠️** – medium-risk
-- **BLOCK 🚫** – high-risk
+This intelligent agent detects phishing in **emails**, **websites**, and **screenshots**.
+- **ALLOW** – low-risk
+- **WARN** – medium-risk
+- **BLOCK** – high-risk
 """)
 
 # -----------------------------
@@ -118,11 +125,10 @@ with tab_email:
 
     if st.button("Analyze Email"):
         if email_text.strip():
-            with st.spinner("Analyzing email..."):
-                vectorized = email_vectorizer.transform([email_text])
-                model = email_dt if model_choice == "Decision Tree" else email_rf
-                prob = model.predict_proba(vectorized)[0][1]
-                action, risk = agent_decision(prob)
+            vectorized = email_vectorizer.transform([email_text])
+            model = email_dt if model_choice == "Decision Tree" else email_rf
+            prob = model.predict_proba(vectorized)[0][1]
+            action, risk = agent_decision(prob)
 
             st.metric("Phishing Probability", f"{prob:.2f}")
             st.write("**Risk Level:**", risk)
@@ -144,14 +150,12 @@ with tab_website:
 
     if st.button("Analyze Website"):
         if url.strip():
-            with st.spinner("Extracting website features..."):
-                features = cached_extract_website_features(url)
-                vector = [features.get(f, 0) for f in website_features]
+            features = cached_extract_website_features(url)
+            vector = [features.get(f, 0) for f in website_features]
 
-            with st.spinner("Analyzing website..."):
-                model = website_dt if model_choice == "Decision Tree" else website_rf
-                prob = model.predict_proba([vector])[0][1]
-                action, risk = agent_decision(prob)
+            model = website_dt if model_choice == "Decision Tree" else website_rf
+            prob = model.predict_proba([vector])[0][1]
+            action, risk = agent_decision(prob)
 
             st.metric("Phishing Probability", f"{prob:.2f}")
             st.write("**Risk Level:**", risk)
@@ -177,28 +181,32 @@ with tab_image:
         "Select Model:", ["Decision Tree", "Random Forest"], key="img_model"
     )
 
-    if st.button("Analyze Image"):
-        if uploaded_file:
-            with st.spinner("Processing image..."):
-                img = Image.open(uploaded_file).convert("RGB")
-                result = reader.readtext(np.array(img))
-                extracted_text = " ".join([r[1] for r in result])
+    # OCR only when a NEW image is uploaded
+    if uploaded_file and uploaded_file.name != st.session_state.last_image_name:
+        img = Image.open(uploaded_file).convert("RGB")
+        result = reader.readtext(np.array(img))
+        st.session_state.extracted_text = " ".join([r[1] for r in result])
+        st.session_state.last_image_name = uploaded_file.name
 
-            st.subheader("Extracted Text")
-            st.text(extracted_text if extracted_text else "No text detected.")
+    # Persist extracted text across model changes
+    if st.session_state.extracted_text:
+        st.subheader("Extracted Text")
+        st.text(st.session_state.extracted_text)
 
-            if extracted_text:
-                with st.spinner("Analyzing extracted text..."):
-                    vectorized = email_vectorizer.transform([extracted_text])
-                    model = email_dt if model_choice == "Decision Tree" else email_rf
-                    prob = model.predict_proba(vectorized)[0][1]
-                    action, risk = agent_decision(prob)
+        if st.button("Analyze Image"):
+            vectorized = email_vectorizer.transform(
+                [st.session_state.extracted_text]
+            )
+            model = email_dt if model_choice == "Decision Tree" else email_rf
+            prob = model.predict_proba(vectorized)[0][1]
+            action, risk = agent_decision(prob)
 
-                st.metric("Phishing Probability", f"{prob:.2f}")
-                st.write("**Risk Level:**", risk)
-                st.write("**Agent Action:**", action)
-                show_agent_visual(action)
-            else:
-                st.warning("No text found in image.")
-        else:
-            st.warning("Please upload an image.")
+            st.metric("Phishing Probability", f"{prob:.2f}")
+            st.write("**Risk Level:**", risk)
+            st.write("**Agent Action:**", action)
+            show_agent_visual(action)
+
+    elif uploaded_file:
+        st.warning("No text detected in image.")
+    else:
+        st.info("Upload an image to begin.")
