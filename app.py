@@ -128,22 +128,26 @@ with tab_website:
     if st.button("Analyze Website"):
         if url.strip():
             features = cached_extract_website_features(url)
-            vector = [features.get(f, 0) for f in website_features]
 
-            model = website_dt if model_choice == "Decision Tree" else website_rf
-            prob = model.predict_proba([vector])[0][1]
-            action, risk = agent_decision(prob)
+            # Check if URL exists / features were extracted
+            if features is None:
+                st.error("This URL does not exist.")
+            else:
+                vector = [features.get(f, 0) for f in website_features]
 
-            st.metric("Phishing Probability", f"{prob:.2f}")
-            st.write("**Risk Level:**", risk)
-            st.write("**Agent Action:**", action)
-            show_agent_visual(action)
+                model = website_dt if model_choice == "Decision Tree" else website_rf
+                prob = model.predict_proba([vector])[0][1]
+                action, risk = agent_decision(prob, url)
 
-            if st.checkbox("Show extracted features"):
-                st.json(features)
+                st.metric("Phishing Probability", f"{prob:.2f}")
+                st.write("**Risk Level:**", risk)
+                st.write("**Agent Action:**", action)
+                show_agent_visual(action)
+
+                if st.checkbox("Show extracted features"):
+                    st.json(features)
         else:
             st.warning("Please enter a URL.")
-
 
 with tab_image:
     st.subheader("Image / Screenshot Phishing Detection")
