@@ -41,12 +41,12 @@ def evaluate(model, name):
     print("Accuracy:", accuracy_score(y_test, y_pred))
     #calculate the precision score (true_positive / (true_positive + false_positive))
     #meaning: among the emails predicted as spam, which fraction are actually spam
-    print("Precision:", precision_score(y_test, y_pred, pos_label='spam'))
+    print("Precision:", precision_score(y_test, y_pred, pos_label=1))
     # calculate the recall score (true_positive / (true_positive + false_negative))
     #meaning: among the actual spam emails, which fraction are correctly detected
-    print("Recall:", recall_score(y_test, y_pred, pos_label='spam'))
+    print("Recall:", recall_score(y_test, y_pred, pos_label=1))
     # calculate the F1 score - harmonic mean of Precision and Recall (2*P*R / (P+R))
-    print("F1 Score:", f1_score(y_test, y_pred, pos_label='spam'))
+    print("F1 Score:", f1_score(y_test, y_pred, pos_label=1))
 
 # Evaluation of the models using the evalution function
 evaluate(dt, "Website Decision Tree")
@@ -55,7 +55,7 @@ evaluate(rf, "Website Random Forest")
 #save models and features on files so we do not need to retrain the model each time we need to use them 
 #we use joblit.dump to read to save the objects after serializing them into pickle files
 #we save both the models and the features
-joblib.dump(dt, "models/website_dt.pkl")
-joblib.dump(rf, "models/website_rf.pkl")
-#we save the features so when we need to use them we use the same features that the models are being trained
-joblib.dump(X.columns.tolist(), "models/website_features.pkl")
+# joblib.dump(dt, "models/website_dt.pkl")
+# joblib.dump(rf, "models/website_rf.pkl")
+# #we save the features so when we need to use them we use the same features that the models are being trained
+# joblib.dump(X.columns.tolist(), "models/website_features.pkl")

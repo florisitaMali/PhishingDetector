@@ -65,6 +65,6 @@ evaluate(rf, "Email Random Forest")
 #if we do not use this files we have to train the model each time we want to make a prediction
 
 #about the extension .pkl it stands for Pickle which is the file format for the python to store serialized python objects
-joblib.dump(dt, "models/email_dt.pkl")
-joblib.dump(rf, "models/email_rf.pkl")
-joblib.dump(vectorizer, "models/email_vectorizer.pkl")
+# joblib.dump(dt, "models/email_dt.pkl")
+# joblib.dump(rf, "models/email_rf.pkl")
+# joblib.dump(vectorizer, "models/email_vectorizer.pkl")
