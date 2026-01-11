@@ -26,7 +26,7 @@ dt = DecisionTreeClassifier(random_state=42)
 #n_estimators -> 1000 decision trees used for making the decision,
 #random state for reproducing the same result
 #n_jobs use all the available CPU cores 
-rf = RandomForestClassifier(n_estimators=1000, random_state=42, n_jobs=-1)
+rf = RandomForestClassifier(n_estimators=200, random_state=42, n_jobs=-1)
 
 #train both models 
 dt.fit(X_train, y_train)

@@ -28,7 +28,7 @@ X_vec = vectorizer.fit_transform(X)
 X_train, X_test, y_train, y_test = train_test_split( X_vec, y, test_size=0.2, random_state=42, stratify=y)
 
 # Decision Tree
-dt = DecisionTreeClassifier(criterion="entropy", splitter="best", max_depth=None, random_state=42)
+dt = DecisionTreeClassifier(random_state=42)
 #Use the fit function for training
 dt.fit(X_train, y_train)
 
