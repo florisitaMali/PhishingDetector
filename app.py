@@ -38,7 +38,7 @@ def load_models_and_ocr():
     website_feats = joblib.load("models/website_features.pkl")
 
     #initialize OCR reader on english language and the gpu enabled 
-    ocr_reader = easyocr.Reader(['en'], gpu=True)
+    ocr_reader = easyocr.Reader(['en'], gpu=False)
 
     #return a tupple of models for both the website and email, the TF-IDF vcector for email, the website features and the ocr reader
     return (
