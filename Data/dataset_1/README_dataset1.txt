@@ -13,8 +13,12 @@ This dataset is designed for phishing website detection and contains structured 
 - Domain: Cybersecurity / Phishing detection
 - Data format: CSV
 - Target variable: CLASS_LABEL
-
-This dataset contains 42 features extracted from 5000 phishing webpages and 5000 legitimate webpages, which were downloaded from January to May 2015 and from May to June 2017. An improved feature extraction technique is employed by leveraging the browser automation framework (i.e., Selenium WebDriver), which is more precise and robust compared to the parsing approach based on regular expressions.
+- Size: 10,043 instances
+- Features: 42 input features + 1 class label
+- Feature Type: 
+    *   Numeric (e.g., URL length, number of dots, number of dashes)
+    *   Binary / discrete indicators (e.g., presence of iframe, missing title)
+    *   Target: Binary classification (Phishing vs Legitimate)
 
 -------------------------------
 Target Variable

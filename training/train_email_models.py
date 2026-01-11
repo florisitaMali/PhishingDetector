@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier #import the RandomForestClas
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score #the performance metrics
 
 #read the dataset and create the Dataframe
-df = pd.read_csv(r"Data\dataset_2\raw\spam_ham_dataset_merged.csv")
+df = pd.read_csv(r"Data/dataset_2/raw/spam_ham_dataset_merged.csv")
 
 #the training feature will be text 
 X = df["text"]
@@ -28,7 +28,7 @@ X_vec = vectorizer.fit_transform(X)
 X_train, X_test, y_train, y_test = train_test_split( X_vec, y, test_size=0.2, random_state=42, stratify=y)
 
 # Decision Tree
-dt = DecisionTreeClassifier(random_state=42)
+dt = DecisionTreeClassifier(criterion="entropy", splitter="best", max_depth=None, random_state=42)
 #Use the fit function for training
 dt.fit(X_train, y_train)
 
@@ -65,6 +65,55 @@ evaluate(rf, "Email Random Forest")
 #if we do not use this files we have to train the model each time we want to make a prediction
 
 #about the extension .pkl it stands for Pickle which is the file format for the python to store serialized python objects
-# joblib.dump(dt, "models/email_dt.pkl")
-# joblib.dump(rf, "models/email_rf.pkl")
-# joblib.dump(vectorizer, "models/email_vectorizer.pkl")
+joblib.dump(dt, "models/email_dt.pkl")
+joblib.dump(rf, "models/email_rf.pkl")
+joblib.dump(vectorizer, "models/email_vectorizer.pkl")
+
+
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, roc_curve, auc
+from sklearn.preprocessing import LabelBinarizer
+
+#function to plot confusion matrix
+def plot_confusion(model, name):
+    y_pred = model.predict(X_test)
+    cm = confusion_matrix(y_test, y_pred, labels=['ham','spam'])
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['ham','spam'])
+    disp.plot(cmap=plt.cm.Blues)
+    plt.title(f"Confusion Matrix - {name}")
+    plt.show()
+
+#function to plot ROC curve
+def plot_roc(model, name):
+    #convert labels to binary (spam=1, ham=0)
+    lb = LabelBinarizer()
+    y_test_binary = lb.fit_transform(y_test)
+    
+    #predict probabilities
+    if hasattr(model, "predict_proba"):
+        y_score = model.predict_proba(X_test)[:, 1]  # probability of class 'spam'
+    else:
+        #Decision Tree also has predict_proba, but just in case
+        y_score = model.predict(X_test)
+    
+    fpr, tpr, thresholds = roc_curve(y_test_binary, y_score)
+    roc_auc = auc(fpr, tpr)
+    
+    plt.figure()
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(f'ROC Curve - {name}')
+    plt.legend(loc="lower right")
+    plt.show()
+
+#plot for Decision Tree
+plot_confusion(dt, "Decision Tree")
+plot_roc(dt, "Decision Tree")
+
+#plot for Random Forest
+plot_confusion(rf, "Random Forest")
+plot_roc(rf, "Random Forest")

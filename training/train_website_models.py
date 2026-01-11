@@ -48,14 +48,61 @@ def evaluate(model, name):
     # calculate the F1 score - harmonic mean of Precision and Recall (2*P*R / (P+R))
     print("F1 Score:", f1_score(y_test, y_pred, pos_label=1))
 
-# Evaluation of the models using the evalution function
+#Evaluation of the models using the evalution function
 evaluate(dt, "Website Decision Tree")
 evaluate(rf, "Website Random Forest")
 
 #save models and features on files so we do not need to retrain the model each time we need to use them 
 #we use joblit.dump to read to save the objects after serializing them into pickle files
 #we save both the models and the features
-# joblib.dump(dt, "models/website_dt.pkl")
-# joblib.dump(rf, "models/website_rf.pkl")
-# #we save the features so when we need to use them we use the same features that the models are being trained
-# joblib.dump(X.columns.tolist(), "models/website_features.pkl")
+joblib.dump(dt, "models/website_dt.pkl")
+joblib.dump(rf, "models/website_rf.pkl")
+#we save the features so when we need to use them we use the same features that the models are being trained
+joblib.dump(X.columns.tolist(), "models/website_features.pkl")
+
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, roc_curve, auc
+from sklearn.preprocessing import LabelBinarizer
+
+#function to plot confusion matrix
+def plot_confusion(model, name):
+    y_pred = model.predict(X_test)
+    cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
+    disp.plot(cmap=plt.cm.Blues)
+    plt.title(f"Confusion Matrix - {name}")
+    plt.show()
+
+#function to plot ROC curve
+def plot_roc(model, name):
+    #convert labels to binary (1 = phishing, 0 = legitimate)
+    lb = LabelBinarizer()
+    y_test_binary = lb.fit_transform(y_test)
+    
+    #predict probabilities for positive class
+    if hasattr(model, "predict_proba"):
+        y_score = model.predict_proba(X_test)[:, 1]  # probability of class 1 (phishing)
+    else:
+        y_score = model.predict(X_test)
+    
+    fpr, tpr, thresholds = roc_curve(y_test_binary, y_score)
+    roc_auc = auc(fpr, tpr)
+    
+    plt.figure()
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(f'ROC Curve - {name}')
+    plt.legend(loc="lower right")
+    plt.show()
+
+#plot for Decision Tree
+plot_confusion(dt, "Decision Tree")
+plot_roc(dt, "Decision Tree")
+
+#plot for Random Forest
+plot_confusion(rf, "Random Forest")
+plot_roc(rf, "Random Forest")
