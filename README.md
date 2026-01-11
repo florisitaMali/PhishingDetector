@@ -37,8 +37,6 @@ The output of the machine learning model is a phishing probability, which is pas
 
 This reasoning layer ensures transparent and rational decision-making.
 
--
-
 ## Installation and Dependencies
 
 ### Requirements
@@ -53,7 +51,7 @@ Install all dependencies using:
 pip install streamlit pandas numpy scikit-learn joblib pillow easyocr
 ```
 
-> **Note:** EasyOCR may require additional system dependencies for OCR support. GPU acceleration is optional.
+**Note:** EasyOCR may require additional system dependencies for OCR support. GPU acceleration is optional.
 
 ---
 
