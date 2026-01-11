@@ -1,12 +1,16 @@
 streamlit
-numpy
 pandas
+numpy
 scikit-learn
 joblib
-Pillow
+pillow
 easyocr
+requests
+beautifulsoup4
+tldextract
+urllib3
 opencv-python-headless
 torch
 torchvision
-beautifulsoup4
+
 
