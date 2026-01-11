@@ -5,9 +5,9 @@ This project implements a **Multi-Modal Intelligent Phishing Detection Agent** c
 
 ## Group Members and Roles
 
-* **Florisita Mali** – Dataset preparation, model training, and quantitative evaluation
-* **Gresja Kulejmani** – Intelligent agent design, decision logic, and system integration
-* **Ledio Hima** – User interface development (Streamlit) and visualization
+* **Florisita Mali** – Dataset preparation, model training of model for website dataset
+* **Gresja Kulejmani** – Dataset preparation, model training of model for email dataset
+* **Ledio Hima** – User interface development (Streamlit),visualization and quantitative evaluation
 
 All team members contributed to system design, testing, and report writing.
 
